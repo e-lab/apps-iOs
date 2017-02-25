@@ -41,6 +41,7 @@
 		C17F325E1E61C8D7002398AF /* Threshold.c in Sources */ = {isa = PBXBuildFile; fileRef = C17F32491E61C8D7002398AF /* Threshold.c */; };
 		C17F325F1E61C8D7002398AF /* View.c in Sources */ = {isa = PBXBuildFile; fileRef = C17F324A1E61C8D7002398AF /* View.c */; };
 		C17F32621E61D199002398AF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C17F32611E61D199002398AF /* Accelerate.framework */; };
+		C1FBE9FE1E61E7050031028A /* neural-nets in Resources */ = {isa = PBXBuildFile; fileRef = C1FBE9FD1E61E7050031028A /* neural-nets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +103,8 @@
 		C17F32491E61C8D7002398AF /* Threshold.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Threshold.c; path = thnets/modules/Threshold.c; sourceTree = "<group>"; };
 		C17F324A1E61C8D7002398AF /* View.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = View.c; path = thnets/modules/View.c; sourceTree = "<group>"; };
 		C17F32611E61D199002398AF /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		C1FBE9F71E61DA400031028A /* thnets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = thnets.h; path = thnets/thnets.h; sourceTree = "<group>"; };
+		C1FBE9FD1E61E7050031028A /* neural-nets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "neural-nets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +136,7 @@
 		C17F31F01E61C82B002398AF = {
 			isa = PBXGroup;
 			children = (
+				C1FBE9FD1E61E7050031028A /* neural-nets */,
 				C17F322A1E61C890002398AF /* thnets */,
 				C17F31FB1E61C82B002398AF /* test-thnets */,
 				C17F32101E61C82B002398AF /* test-thnetsTests */,
@@ -186,6 +190,7 @@
 		C17F322A1E61C890002398AF /* thnets */ = {
 			isa = PBXGroup;
 			children = (
+				C1FBE9F71E61DA400031028A /* thnets.h */,
 				C17F32361E61C8D7002398AF /* CAddTable.c */,
 				C17F32371E61C8D7002398AF /* Concat.c */,
 				C17F32381E61C8D7002398AF /* ConcatTable.c */,
@@ -334,6 +339,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C17F32071E61C82B002398AF /* LaunchScreen.storyboard in Resources */,
+				C1FBE9FE1E61E7050031028A /* neural-nets in Resources */,
 				C17F32041E61C82B002398AF /* Assets.xcassets in Resources */,
 				C17F32021E61C82B002398AF /* Main.storyboard in Resources */,
 			);
@@ -637,6 +643,7 @@
 				C17F32231E61C82B002398AF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C17F32241E61C82B002398AF /* Build configuration list for PBXNativeTarget "test-thnetsTests" */ = {
 			isa = XCConfigurationList;
@@ -645,6 +652,7 @@
 				C17F32261E61C82B002398AF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C17F32271E61C82B002398AF /* Build configuration list for PBXNativeTarget "test-thnetsUITests" */ = {
 			isa = XCConfigurationList;
@@ -653,6 +661,7 @@
 				C17F32291E61C82B002398AF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
