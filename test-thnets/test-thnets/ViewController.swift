@@ -29,21 +29,32 @@ class ViewController: UIViewController {
     // MARK: Actions:
 
     @IBAction func buttonpressed(_ sender: Any) {
-
+        
         // RUN THNETS TEST HERE:
-        label.text = "Success!"
         
         // access to neural-nets directory: http://www.techotopia.com/index.php/Working_with_Directories_in_Swift_on_iOS_8
-//        let filemgr = FileManager.default
-//        let currentPath = filemgr.currentDirectoryPath
+        // let filemgr = FileManager.default
+        // let currentPath = filemgr.currentDirectoryPath
         
         // neural network variable:
         var net: UnsafeMutablePointer<THNETWORK>
 
         THInit();
 
-        // load neural net:
-        net = THLoadNetwork("/Users/eugenioculurciello/Code/github/apps-iOs/test-thnets/neural-nets/");
+        // load neural net from project:
+        let docsPath = Bundle.main.resourcePath! + "/neural-nets/"
+        
+        //test if correct file located
+        let fileManager = FileManager.default
+        do {
+            let docsArray = try fileManager.contentsOfDirectory(atPath: docsPath)
+            print(docsArray)
+        } catch {
+            print(error)
+        }
+        
+        //Load Network
+        net = THLoadNetwork(docsPath)
         print(net)
 
         // run neural net:
