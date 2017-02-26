@@ -265,7 +265,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 		
 		session.commitConfiguration()
         
-        // Enable movie mode by default:
+        
+        // Enable camera movie mode by default:
         let movieFileOutput = AVCaptureMovieFileOutput()
         
         if self.session.canAddOutput(movieFileOutput) {
@@ -280,8 +281,45 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             self.session.commitConfiguration()
 
         }
+        
+        
+        // THNETS neural network loading and initalization:
+        
+        // access to neural-nets directory: http://www.techotopia.com/index.php/Working_with_Directories_in_Swift_on_iOS_8
+        // let filemgr = FileManager.default
+        // let currentPath = filemgr.currentDirectoryPath
+        
+        // neural network variable:
+        var net: UnsafeMutablePointer<THNETWORK>
+        
+        THInit();
+        
+        // load neural net from project:
+        let docsPath = Bundle.main.resourcePath! + "/neural-nets/"
+        
+        //test if correct file located
+        let fileManager = FileManager.default
+        do {
+            let docsArray = try fileManager.contentsOfDirectory(atPath: docsPath)
+            print(docsArray)
+        } catch {
+            print(error)
+        }
+        
+        //Load Network
+        net = THLoadNetwork(docsPath)
+        print(net)
+        
+        // setup neural net:
+        // if net == nil {
+        THUseSpatialConvolutionMM(net, 2);
+
+
+        
 	}
 	
+    
+    
 	@IBAction private func resumeInterruptedSession(_ resumeButton: UIButton)
 	{
 		sessionQueue.async { [unowned self] in
