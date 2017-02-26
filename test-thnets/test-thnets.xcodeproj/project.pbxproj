@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		C17F31FD1E61C82B002398AF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17F31FC1E61C82B002398AF /* AppDelegate.swift */; };
 		C17F31FF1E61C82B002398AF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17F31FE1E61C82B002398AF /* ViewController.swift */; };
-		C17F32021E61C82B002398AF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C17F32001E61C82B002398AF /* Main.storyboard */; };
-		C17F32041E61C82B002398AF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C17F32031E61C82B002398AF /* Assets.xcassets */; };
-		C17F32071E61C82B002398AF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C17F32051E61C82B002398AF /* LaunchScreen.storyboard */; };
 		C17F32121E61C82B002398AF /* test_thnetsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17F32111E61C82B002398AF /* test_thnetsTests.swift */; };
 		C17F321D1E61C82B002398AF /* test_thnetsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17F321C1E61C82B002398AF /* test_thnetsUITests.swift */; };
 		C17F32311E61C8C7002398AF /* memorydebug.c in Sources */ = {isa = PBXBuildFile; fileRef = C17F322C1E61C8C7002398AF /* memorydebug.c */; };
@@ -41,6 +38,10 @@
 		C17F325E1E61C8D7002398AF /* Threshold.c in Sources */ = {isa = PBXBuildFile; fileRef = C17F32491E61C8D7002398AF /* Threshold.c */; };
 		C17F325F1E61C8D7002398AF /* View.c in Sources */ = {isa = PBXBuildFile; fileRef = C17F324A1E61C8D7002398AF /* View.c */; };
 		C17F32621E61D199002398AF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C17F32611E61D199002398AF /* Accelerate.framework */; };
+		C1B0B1C51E626D3600363902 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B0B1C41E626D3600363902 /* CameraViewController.swift */; };
+		C1B0B1C71E626D4C00363902 /* PhotoCaptureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B0B1C61E626D4C00363902 /* PhotoCaptureDelegate.swift */; };
+		C1B0B1CB1E626E1900363902 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C1B0B1CA1E626E1900363902 /* Main.storyboard */; };
+		C1B0B1CD1E631C0D00363902 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1B0B1CC1E631C0D00363902 /* Images.xcassets */; };
 		C1FBE9FE1E61E7050031028A /* neural-nets in Resources */ = {isa = PBXBuildFile; fileRef = C1FBE9FD1E61E7050031028A /* neural-nets */; };
 /* End PBXBuildFile section */
 
@@ -65,9 +66,6 @@
 		C17F31F91E61C82B002398AF /* test-thnets.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "test-thnets.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C17F31FC1E61C82B002398AF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C17F31FE1E61C82B002398AF /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		C17F32011E61C82B002398AF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		C17F32031E61C82B002398AF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		C17F32061E61C82B002398AF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C17F32081E61C82B002398AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C17F320D1E61C82B002398AF /* test-thnetsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "test-thnetsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C17F32111E61C82B002398AF /* test_thnetsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = test_thnetsTests.swift; sourceTree = "<group>"; };
@@ -103,6 +101,10 @@
 		C17F32491E61C8D7002398AF /* Threshold.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Threshold.c; path = thnets/modules/Threshold.c; sourceTree = "<group>"; };
 		C17F324A1E61C8D7002398AF /* View.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = View.c; path = thnets/modules/View.c; sourceTree = "<group>"; };
 		C17F32611E61D199002398AF /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		C1B0B1C41E626D3600363902 /* CameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		C1B0B1C61E626D4C00363902 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
+		C1B0B1CA1E626E1900363902 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		C1B0B1CC1E631C0D00363902 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		C1FBE9F71E61DA400031028A /* thnets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = thnets.h; path = thnets/thnets.h; sourceTree = "<group>"; };
 		C1FBE9FD1E61E7050031028A /* neural-nets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "neural-nets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -160,11 +162,12 @@
 			isa = PBXGroup;
 			children = (
 				C17F31FC1E61C82B002398AF /* AppDelegate.swift */,
+				C1B0B1C41E626D3600363902 /* CameraViewController.swift */,
+				C1B0B1C61E626D4C00363902 /* PhotoCaptureDelegate.swift */,
 				C17F31FE1E61C82B002398AF /* ViewController.swift */,
-				C17F32001E61C82B002398AF /* Main.storyboard */,
-				C17F32031E61C82B002398AF /* Assets.xcassets */,
-				C17F32051E61C82B002398AF /* LaunchScreen.storyboard */,
+				C1B0B1CA1E626E1900363902 /* Main.storyboard */,
 				C17F32081E61C82B002398AF /* Info.plist */,
+				C1B0B1CC1E631C0D00363902 /* Images.xcassets */,
 			);
 			path = "test-thnets";
 			sourceTree = "<group>";
@@ -298,6 +301,7 @@
 				TargetAttributes = {
 					C17F31F81E61C82B002398AF = {
 						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = Z5AGKU76KL;
 						LastSwiftMigration = 0820;
 						ProvisioningStyle = Automatic;
 					};
@@ -338,10 +342,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C17F32071E61C82B002398AF /* LaunchScreen.storyboard in Resources */,
+				C1B0B1CD1E631C0D00363902 /* Images.xcassets in Resources */,
 				C1FBE9FE1E61E7050031028A /* neural-nets in Resources */,
-				C17F32041E61C82B002398AF /* Assets.xcassets in Resources */,
-				C17F32021E61C82B002398AF /* Main.storyboard in Resources */,
+				C1B0B1CB1E626E1900363902 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -380,9 +383,11 @@
 				C17F325E1E61C8D7002398AF /* Threshold.c in Sources */,
 				C17F324C1E61C8D7002398AF /* Concat.c in Sources */,
 				C17F325D1E61C8D7002398AF /* SpatialZeroPadding.c in Sources */,
+				C1B0B1C51E626D3600363902 /* CameraViewController.swift in Sources */,
 				C17F32551E61C8D7002398AF /* SoftMax.c in Sources */,
 				C17F32521E61C8D7002398AF /* PReLU.c in Sources */,
 				C17F324E1E61C8D7002398AF /* Dropout.c in Sources */,
+				C1B0B1C71E626D4C00363902 /* PhotoCaptureDelegate.swift in Sources */,
 				C17F32351E61C8C7002398AF /* thload.c in Sources */,
 				C17F32581E61C8D7002398AF /* SpatialConvolution.c in Sources */,
 				C17F325B1E61C8D7002398AF /* SpatialMaxPooling.c in Sources */,
@@ -427,25 +432,6 @@
 			targetProxy = C17F32191E61C82B002398AF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		C17F32001E61C82B002398AF /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C17F32011E61C82B002398AF /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		C17F32051E61C82B002398AF /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C17F32061E61C82B002398AF /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		C17F321F1E61C82B002398AF /* Debug */ = {
@@ -545,7 +531,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
+				DEVELOPMENT_TEAM = Z5AGKU76KL;
 				INFOPLIST_FILE = "test-thnets/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.fwdnxt.test-thnets";
@@ -560,7 +548,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
+				DEVELOPMENT_TEAM = Z5AGKU76KL;
 				INFOPLIST_FILE = "test-thnets/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.fwdnxt.test-thnets";
