@@ -1,10 +1,8 @@
-/*
-	Copyright (C) 2016 Apple Inc. All Rights Reserved.
-	See LICENSE.txt for this sample’s licensing information
-	
-	Abstract:
-	View controller for camera interface.
-*/
+//  test-thnets
+//
+//  Created by Eugenio Culurciello on 2/25/17.
+//  Copyright © 2017 Eugenio Culurciello. All rights reserved.
+//
 
 import UIKit
 import AVFoundation
@@ -18,7 +16,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 		
 		// Disable UI. The UI is enabled if and only if the session starts running.
 		cameraButton.isEnabled = false
-		recordButton.isEnabled = false
+//		recordButton.isEnabled = false
 		photoButton.isEnabled = false
 		
 		// Set up the video preview view.
@@ -287,7 +285,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             self.movieFileOutput = movieFileOutput
             
             DispatchQueue.main.async { [unowned self] in
-                self.recordButton.isEnabled = true
+//                self.recordButton.isEnabled = true
             }
         }
 	}
@@ -315,7 +313,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			}
 			else {
 				DispatchQueue.main.async { [unowned self] in
-					self.resumeButton.isHidden = true
+//					self.resumeButton.isHidden = true
 				}
 			}
 		}
@@ -332,7 +330,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 	
 	@IBAction private func changeCamera(_ cameraButton: UIButton) {
 		cameraButton.isEnabled = false
-		recordButton.isEnabled = false
+//		recordButton.isEnabled = false
 		photoButton.isEnabled = false
 		
 		sessionQueue.async { [unowned self] in
@@ -407,7 +405,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			
 			DispatchQueue.main.async { [unowned self] in
 				self.cameraButton.isEnabled = true
-				self.recordButton.isEnabled = self.movieFileOutput != nil
+//				self.recordButton.isEnabled = self.movieFileOutput != nil
 				self.photoButton.isEnabled = true
 			}
 		}
@@ -512,9 +510,9 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 	
 	private var backgroundRecordingID: UIBackgroundTaskIdentifier? = nil
 	
-	@IBOutlet private weak var recordButton: UIButton!
+//	@IBOutlet private weak var recordButton: UIButton!
 	
-	@IBOutlet private weak var resumeButton: UIButton!
+//	@IBOutlet private weak var resumeButton: UIButton!
 	
 	@IBAction private func toggleMovieRecording(_ recordButton: UIButton) {
 		guard let movieFileOutput = self.movieFileOutput else {
@@ -569,8 +567,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 	func capture(_ captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAt fileURL: URL!, fromConnections connections: [Any]!) {
 		// Enable the Record button to let the user stop the recording.
 		DispatchQueue.main.async { [unowned self] in
-			self.recordButton.isEnabled = true
-			self.recordButton.setTitle(NSLocalizedString("Stop", comment: "Recording button stop title"), for: [])
+//			self.recordButton.isEnabled = true
+//			self.recordButton.setTitle(NSLocalizedString("Stop", comment: "Recording button stop title"), for: [])
 		}
 	}
 	
@@ -643,8 +641,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 		DispatchQueue.main.async { [unowned self] in
 			// Only enable the ability to change camera if the device has more than one camera.
 			self.cameraButton.isEnabled = self.videoDeviceDiscoverySession.uniqueDevicePositionsCount() > 1
-			self.recordButton.isEnabled = true
-			self.recordButton.setTitle(NSLocalizedString("Record", comment: "Recording button record title"), for: [])
+//			self.recordButton.isEnabled = true
+//			self.recordButton.setTitle(NSLocalizedString("Record", comment: "Recording button record title"), for: [])
 		}
 	}
 	
@@ -683,7 +681,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			DispatchQueue.main.async { [unowned self] in
 				// Only enable the ability to change camera if the device has more than one camera.
 				self.cameraButton.isEnabled = isSessionRunning && self.videoDeviceDiscoverySession.uniqueDevicePositionsCount() > 1
-				self.recordButton.isEnabled = isSessionRunning && self.movieFileOutput != nil
+//				self.recordButton.isEnabled = isSessionRunning && self.movieFileOutput != nil
 				self.photoButton.isEnabled = isSessionRunning
 			}
 		}
@@ -718,13 +716,13 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 				}
 				else {
 					DispatchQueue.main.async { [unowned self] in
-						self.resumeButton.isHidden = false
+//						self.resumeButton.isHidden = false
 					}
 				}
 			}
 		}
 		else {
-            resumeButton.isHidden = false
+//            resumeButton.isHidden = false
 		}
 	}
 	
@@ -756,10 +754,10 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			
 			if showResumeButton {
 				// Simply fade-in a button to enable the user to try to resume the session running.
-				resumeButton.alpha = 0
-				resumeButton.isHidden = false
+//				resumeButton.alpha = 0
+//				resumeButton.isHidden = false
 				UIView.animate(withDuration: 0.25) { [unowned self] in
-					self.resumeButton.alpha = 1
+//					self.resumeButton.alpha = 1
 				}
 			}
 		}
@@ -768,15 +766,15 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 	func sessionInterruptionEnded(notification: NSNotification) {
 		print("Capture session interruption ended")
 		
-		if !resumeButton.isHidden {
-			UIView.animate(withDuration: 0.25,
-				animations: { [unowned self] in
-					self.resumeButton.alpha = 0
-				}, completion: { [unowned self] finished in
-					self.resumeButton.isHidden = true
-				}
-			)
-		}
+//		if !resumeButton.isHidden {
+//			UIView.animate(withDuration: 0.25,
+//				animations: { [unowned self] in
+//					self.resumeButton.alpha = 0
+//				}, completion: { [unowned self] finished in
+//					self.resumeButton.isHidden = true
+//				}
+//			)
+//		}
 		if !cameraUnavailableLabel.isHidden {
 			UIView.animate(withDuration: 0.25,
 			    animations: { [unowned self] in
