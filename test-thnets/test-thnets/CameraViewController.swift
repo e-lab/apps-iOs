@@ -177,7 +177,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			var defaultVideoDevice: AVCaptureDevice?
 			
 			// Choose the back dual camera if available, otherwise default to a wide angle camera.
-			if let dualCameraDevice = AVCaptureDevice.defaultDevice(withDeviceType: .builtInDuoCamera, mediaType: AVMediaTypeVideo, position: .back) {
+			if let dualCameraDevice = AVCaptureDevice.defaultDevice(withDeviceType: AVCaptureDeviceType.builtInDualCamera, mediaType: AVMediaTypeVideo, position: .back) {
 				defaultVideoDevice = dualCameraDevice
 			}
 			else if let backCameraDevice = AVCaptureDevice.defaultDevice(withDeviceType: .builtInWideAngleCamera, mediaType: AVMediaTypeVideo, position: .back) {
@@ -341,11 +341,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 					self.present(alertController, animated: true, completion: nil)
 				}
 			}
-			else {
-				DispatchQueue.main.async { [unowned self] in
-//					self.resumeButton.isHidden = true
-				}
-			}
 		}
 	}
 
@@ -356,7 +351,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 	
 	@IBOutlet private weak var cameraUnavailableLabel: UILabel!
 	
-	private let videoDeviceDiscoverySession = AVCaptureDeviceDiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDuoCamera], mediaType: AVMediaTypeVideo, position: .unspecified)!
+	private let videoDeviceDiscoverySession = AVCaptureDeviceDiscoverySession(deviceTypes: [.builtInWideAngleCamera, AVCaptureDeviceType.builtInDualCamera], mediaType: AVMediaTypeVideo, position: .unspecified)!
 	
 	@IBAction private func changeCamera(_ cameraButton: UIButton) {
 		cameraButton.isEnabled = false
@@ -373,7 +368,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			switch currentPosition {
 				case .unspecified, .front:
 					preferredPosition = .back
-					preferredDeviceType = .builtInDuoCamera
+					preferredDeviceType = AVCaptureDeviceType.builtInDualCamera
 				
 				case .back:
 					preferredPosition = .front
@@ -617,20 +612,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 		*/
 		if let userInfoValue = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as AnyObject?, let reasonIntegerValue = userInfoValue.integerValue, let reason = AVCaptureSessionInterruptionReason(rawValue: reasonIntegerValue) {
 			print("Capture session was interrupted with reason \(reason)")
-			
-			var showResumeButton = false
-			
-			if reason == AVCaptureSessionInterruptionReason.audioDeviceInUseByAnotherClient || reason == AVCaptureSessionInterruptionReason.videoDeviceInUseByAnotherClient {
-				showResumeButton = true
-			}
-			else if reason == AVCaptureSessionInterruptionReason.videoDeviceNotAvailableWithMultipleForegroundApps {
-				// Simply fade-in a label to inform the user that the camera is unavailable.
-				cameraUnavailableLabel.alpha = 0
-				cameraUnavailableLabel.isHidden = false
-				UIView.animate(withDuration: 0.25) { [unowned self] in
-					self.cameraUnavailableLabel.alpha = 1
-				}
-			}
 			
 		}
 	}
