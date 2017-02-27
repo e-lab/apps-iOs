@@ -8,7 +8,7 @@ import UIKit
 import AVFoundation
 import Photos
 
-class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
+class CameraViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
 	// MARK: View Controller Life Cycle
 	
     override func viewDidLoad() {
@@ -16,7 +16,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 		
 		// Disable UI. The UI is enabled if and only if the session starts running.
 		cameraButton.isEnabled = false
-//		recordButton.isEnabled = false
 		photoButton.isEnabled = false
 		
 		// Set up the video preview view.
@@ -155,6 +154,13 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 	private var setupResult: SessionSetupResult = .success
 	
 	var videoDeviceInput: AVCaptureDeviceInput!
+    
+    
+    // THNETS neural network loading and initalization:
+    var net: UnsafeMutablePointer<THNETWORK>?
+    // load neural net from project:
+    let docsPath = Bundle.main.resourcePath! + "/neural-nets/"
+   
 	
 	@IBOutlet private weak var previewView: PreviewView!
 	
@@ -267,13 +273,19 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         
         
         // Enable camera movie mode by default:
-        let movieFileOutput = AVCaptureMovieFileOutput()
+        // PIXEL DATA HERE:
+        // https://developer.apple.com/library/content/documentation/AudioVideo/Conceptual/AVFoundationPG/Articles/04_MediaCapture.html
+        // https://www.invasivecode.com/weblog/AVFoundation-Swift-capture-video/
+        let dataOutput = AVCaptureVideoDataOutput()
+        dataOutput.videoSettings = [(kCVPixelBufferPixelFormatTypeKey as NSString) : NSNumber(value: kCVPixelFormatType_420YpCbCr8BiPlanarFullRange as UInt32)]
+        // https://developer.apple.com/reference/corevideo/cvpixelformatdescription/1563591-pixel_format_types
+        dataOutput.alwaysDiscardsLateVideoFrames = true
         
-        if self.session.canAddOutput(movieFileOutput) {
+        if self.session.canAddOutput(dataOutput) {
             self.session.beginConfiguration()
-            self.session.addOutput(movieFileOutput)
+            self.session.addOutput(dataOutput)
             self.session.sessionPreset = AVCaptureSessionPresetHigh
-            if let connection = movieFileOutput.connection(withMediaType: AVMediaTypeVideo) {
+            if let connection = dataOutput.connection(withMediaType: AVMediaTypeVideo) {
                 if connection.isVideoStabilizationSupported {
                     connection.preferredVideoStabilizationMode = .auto
                 }
@@ -282,20 +294,10 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 
         }
         
+
         
-        // THNETS neural network loading and initalization:
-        
-        // access to neural-nets directory: http://www.techotopia.com/index.php/Working_with_Directories_in_Swift_on_iOS_8
-        // let filemgr = FileManager.default
-        // let currentPath = filemgr.currentDirectoryPath
-        
-        // neural network variable:
-        var net: UnsafeMutablePointer<THNETWORK>
-        
+        // THNETS init and load
         THInit();
-        
-        // load neural net from project:
-        let docsPath = Bundle.main.resourcePath! + "/neural-nets/"
         
         //test if correct file located
         let fileManager = FileManager.default
@@ -306,44 +308,21 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             print(error)
         }
         
-        //Load Network
+        // THNETS:
+        // Load Network
         net = THLoadNetwork(docsPath)
         print(net)
         
         // setup neural net:
-        // if net == nil {
-        THUseSpatialConvolutionMM(net, 2);
+        if net != nil { THUseSpatialConvolutionMM(net, 2) }
 
+
+    
+        
 
         
 	}
 	
-    
-    
-	@IBAction private func resumeInterruptedSession(_ resumeButton: UIButton)
-	{
-		sessionQueue.async { [unowned self] in
-			/*
-				The session might fail to start running, e.g., if a phone or FaceTime call is still
-				using audio or video. A failure to start the session running will be communicated via
-				a session runtime error notification. To avoid repeatedly failing to start the session
-				running, we only try to restart the session running in the session runtime error handler
-				if we aren't trying to resume the session running.
-			*/
-			self.session.startRunning()
-			self.isSessionRunning = self.session.isRunning
-			if !self.session.isRunning {
-				DispatchQueue.main.async { [unowned self] in
-					let message = NSLocalizedString("Unable to resume", comment: "Alert message when unable to resume the session running")
-					let alertController = UIAlertController(title: "AVCam", message: message, preferredStyle: .alert)
-					let cancelAction = UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"), style: .cancel, handler: nil)
-					alertController.addAction(cancelAction)
-					self.present(alertController, animated: true, completion: nil)
-				}
-			}
-		}
-	}
-
 	
 	// MARK: Device Configuration
 	
@@ -355,7 +334,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 	
 	@IBAction private func changeCamera(_ cameraButton: UIButton) {
 		cameraButton.isEnabled = false
-//		recordButton.isEnabled = false
 		photoButton.isEnabled = false
 		
 		sessionQueue.async { [unowned self] in
@@ -407,15 +385,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 						self.session.addInput(self.videoDeviceInput);
 					}
 
-					
-					/*
-						Set Live Photo capture enabled if it is supported. When changing cameras, the
-						`isLivePhotoCaptureEnabled` property of the AVCapturePhotoOutput gets set to NO when
-						a video device is disconnected from the session. After the new video device is
-						added to the session, re-enable Live Photo capture on the AVCapturePhotoOutput if it is supported.
-					*/
-					self.photoOutput.isLivePhotoCaptureEnabled = self.photoOutput.isLivePhotoCaptureSupported;
-					
 					self.session.commitConfiguration()
 				}
 				catch {
@@ -425,7 +394,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			
 			DispatchQueue.main.async { [unowned self] in
 				self.cameraButton.isEnabled = true
-//				self.recordButton.isEnabled = self.movieFileOutput != nil
 				self.photoButton.isEnabled = true
 			}
 		}
@@ -487,7 +455,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			if let photoOutputConnection = self.photoOutput.connection(withMediaType: AVMediaTypeVideo) {
 				photoOutputConnection.videoOrientation = videoPreviewLayerOrientation
 			}
-			
+            
 			// Capture a JPEG photo with flash set to auto and high resolution photo enabled.
 			let photoSettings = AVCapturePhotoSettings()
 			photoSettings.flashMode = .auto
@@ -495,6 +463,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 			if photoSettings.availablePreviewPhotoPixelFormatTypes.count > 0 {
 				photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String : photoSettings.availablePreviewPhotoPixelFormatTypes.first!]
 			}
+            
 			
 			// Use a separate object for the photo capture delegate to isolate each capture life cycle.
 			let photoCaptureDelegate = PhotoCaptureDelegate(with: photoSettings, willCapturePhotoAnimation: {
@@ -526,9 +495,41 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
 	
 	// MARK: Recording Movies
 	
-    func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!) {
-        // this needs to be here, or an error appears
-	}
+//    func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!) {
+//        // this needs to be here, or an error appears
+//	}
+//    
+    
+    func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
+        // Here you collect each frame and process it
+        
+        // http://stackoverflow.com/questions/6189409/how-to-get-bytes-from-cmsamplebufferref-to-send-over-network
+        let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
+        CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: 0))
+        
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer)
+        let width = CVPixelBufferGetWidth(imageBuffer)
+        let height = CVPixelBufferGetHeight(imageBuffer)
+        let src_buff = CVPixelBufferGetBaseAddress(imageBuffer)
+        
+        //            NSData *data = [NSData dataWithBytes:src_buff length:bytesPerRow * height];
+        
+        CVPixelBufferUnlockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: 0));
+        print(width)
+        print(height)
+        print(bytesPerRow)
+        
+        
+        // THNETS process image:
+        //let nbatch = 1
+        //let width = 224
+        //let height = 224
+        //var image = sampleBuffer // contains pixel data
+        //var result: [Float]
+        //var outwidth: CInt
+        //var outheight: CInt
+        // THProcessImages(net, image, nbatch, width, height, 3*width, &result, &outwidth, &outheight, 0);
+    }
 	
 	// MARK: KVO and Notifications
 	

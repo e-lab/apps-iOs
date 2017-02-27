@@ -301,7 +301,7 @@
 				TargetAttributes = {
 					C17F31F81E61C82B002398AF = {
 						CreatedOnToolsVersion = 8.2.1;
-						DevelopmentTeam = Z5AGKU76KL;
+						DevelopmentTeam = 6M8TQ93XUP;
 						LastSwiftMigration = 0820;
 						ProvisioningStyle = Automatic;
 					};
@@ -533,7 +533,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = Z5AGKU76KL;
+				DEVELOPMENT_TEAM = 6M8TQ93XUP;
 				INFOPLIST_FILE = "test-thnets/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.fwdnxt.test-thnets";
@@ -550,7 +550,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = Z5AGKU76KL;
+				DEVELOPMENT_TEAM = 6M8TQ93XUP;
 				INFOPLIST_FILE = "test-thnets/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.fwdnxt.test-thnets";
