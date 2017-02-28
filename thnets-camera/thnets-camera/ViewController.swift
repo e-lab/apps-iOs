@@ -11,6 +11,8 @@ import CoreImage
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
 
+    @IBOutlet weak var textresults: UILabel!
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setupCameraSession()
@@ -20,11 +22,60 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 		super.viewDidAppear(animated)
 
 		view.layer.addSublayer(previewLayer)
+        view.addSubview(textresults)
 
 		cameraSession.startRunning()
 	}
     
+    private func updatePreviewLayer(layer: AVCaptureConnection, orientation: AVCaptureVideoOrientation) {
+        
+        layer.videoOrientation = orientation
+        
+        previewLayer.frame = self.view.bounds
+        
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        if let connection =  self.previewLayer.connection  {
+            
+            let currentDevice: UIDevice = UIDevice.current
+            
+            let orientation: UIDeviceOrientation = currentDevice.orientation
+            
+            let previewLayerConnection : AVCaptureConnection = connection
+            
+            if previewLayerConnection.isVideoOrientationSupported {
+                
+                switch (orientation) {
+                case .portrait: updatePreviewLayer(layer: previewLayerConnection, orientation: .portrait)
+                
+                    break
+                    
+                case .landscapeRight: updatePreviewLayer(layer: previewLayerConnection, orientation: .landscapeLeft)
+                
+                    break
+                    
+                case .landscapeLeft: updatePreviewLayer(layer: previewLayerConnection, orientation: .landscapeRight)
+                
+                    break
+                    
+                case .portraitUpsideDown: updatePreviewLayer(layer: previewLayerConnection, orientation: .portraitUpsideDown)
+                
+                    break
+                    
+                default: updatePreviewLayer(layer: previewLayerConnection, orientation: .portrait)
+                
+                    break
+                }
+            }
+        }
+    }
+
+    
     // THNETS neural network loading and initalization:
+    var categories:[String] = []
     var net: UnsafeMutablePointer<THNETWORK>?
     // load neural net from project:
     let docsPath = Bundle.main.resourcePath! + "/neural-nets/"
@@ -39,7 +90,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 		let preview =  AVCaptureVideoPreviewLayer(session: self.cameraSession)
 		preview?.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
 		preview?.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
-		preview?.videoGravity = AVLayerVideoGravityResize
+		//preview?.videoGravity = AVLayerVideoGravityResize
 		return preview!
 	}()
 
@@ -84,8 +135,21 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         } catch {
             print(error)
         }
+    
+        // load categories file:
+        if true {
+            do {
+                let data = try String(contentsOfFile: "\(docsPath)/categories.txt", encoding: .utf8)
+                categories = data.components(separatedBy: .newlines)
+                categories.remove(at: 0)
+                categories.remove(at: 46)
+                //print(categories)
+            } catch {
+                print(error)
+            }
+        }
+
         
-        // THNETS:
         // Load Network
         net = THLoadNetwork(docsPath)
         //print(net)
@@ -154,8 +218,16 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // convert results to array:
         let resultsArray = convert(count:46, data: results!)
         print("Detection:", resultsArray)
+        let sorted = resultsArray.enumerated().sorted(by: {$0.element > $1.element})
+        // print them to console:
+        var stringResults:String = ""
+        for i in 1...5 {
+            print(sorted[i-1], categories[sorted[i-1].0])
+            stringResults.append("\(categories[sorted[i-1].0]) \(sorted[i-1].1) \n")
+        }
+        // in order to display it in the main view, we need to dispatch it to the main view controller:
+        DispatchQueue.main.async { self.textresults.text = stringResults }
 
-        
         // print time:
         let methodFinish = NSDate()
         let executionTime = methodFinish.timeIntervalSince(methodStart as Date)
