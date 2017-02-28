@@ -7,6 +7,7 @@
 
 import UIKit
 import AVFoundation
+import CoreImage
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
 
@@ -87,46 +88,62 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // THNETS:
         // Load Network
         net = THLoadNetwork(docsPath)
-        print(net)
+        //print(net)
         
         // setup neural net:
         if net != nil { THUseSpatialConvolutionMM(net, 2) }
 	}
+    
+    func resizedCroppedImage(image: UIImage, newSize:CGSize) -> UIImage { //http://stackoverflow.com/questions/603907/uiimage-resize-then-crop
+        var ratio: CGFloat = 0
+        var delta: CGFloat = 0
+        var offset = CGPoint.zero
+        if image.size.width > image.size.height {
+            ratio = newSize.width / image.size.width
+            delta = (ratio * image.size.width) - (ratio * image.size.height)
+            offset = CGPoint(x:delta/2, y:0)
+        } else {
+            ratio = newSize.width / image.size.height
+            delta = (ratio * image.size.height) - (ratio * image.size.width)
+            offset = CGPoint(x:0, y:delta/2)
+        }
+        let clipRect = CGRect(x:-offset.x, y:-offset.y, width:(ratio * image.size.width) + delta, height:(ratio * image.size.height) + delta)
+        UIGraphicsBeginImageContextWithOptions(newSize, true, 0.0)
+        UIRectClip(clipRect)
+        image.draw(in: clipRect)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage!
+    }
 
 	func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
 		// Here you collect each frame and process it
         let methodStart = NSDate()
         
+        // get pixel buffer:
         //http://stackoverflow.com/questions/8493583/ios-scale-and-crop-cmsamplebufferref-cvimagebufferref
-        //let cropX0, cropY0, cropHeight=224, cropWidth=224, outWidth, outHeight: Int
+        let cropWidth = 256
+        let cropHeight = 256
+        let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
+        let cameraImage = CIImage(cvPixelBuffer: imageBuffer)
+        let uiImage = UIImage(ciImage: cameraImage)
+        print("Camera input size:", uiImage.size)
         
-//        let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
-//        CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: 0))
-//        
-//        let baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
-//        let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer)
-//        let width = CVPixelBufferGetWidth(imageBuffer)
-//        let height = CVPixelBufferGetHeight(imageBuffer)
-//        let src_buff = CVPixelBufferGetBaseAddress(imageBuffer)
-//    
-//        CVPixelBufferUnlockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: 0));
-//        
-//        print("width, height:")
-//        print(width)
-//        print(height)
-//        print("bytes per row:")
-//        print(bytesPerRow)
+        // crop and scale buffer:
+        let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
+        print("croppedScaledImage size:", croppedScaledImage.size)
         
         
         // THNETS process image:
         let nbatch:Int32 = 1
-        let width:Int32 = 256
-        let height:Int32 = 256
+        let widthi:Int32 = 256
+        let heighti:Int32 = 256
         var image = [Float](repeating: 0.0, count: 3*256*256) // contains pixel data
         var results: UnsafeMutablePointer<Float>?
-        var outwidth: CInt = 0
-        var outheight: CInt = 0
-        THProcessFloat(net, &image, nbatch, width, height, &results, &outwidth, &outheight);
+        var outwidth: Int32 = 0
+        var outheight: Int32 = 0
+        THProcessFloat(net, &image, nbatch, widthi, heighti, &results, &outwidth, &outheight);
+        print("")
 
         
         // print time:
