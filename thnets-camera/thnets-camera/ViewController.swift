@@ -10,15 +10,10 @@ import AVFoundation
 import CoreImage
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
-    
-    @IBOutlet var previewView: UIView!
-    var stillImage : AVCapturePhotoOutput?
-    
-    @IBAction func camButton(_ sender: Any) {
 
-        print("button pressed")
-        
-    }
+    @IBOutlet weak var textresults: UILabel!
+    
+    @IBOutlet weak var textfps: UILabel!
     
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -28,12 +23,63 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 
-		previewView.layer.addSublayer(previewLayer)
+		view.layer.addSublayer(previewLayer)
+        view.addSubview(textresults)
+        view.addSubview(textfps)
 
 		cameraSession.startRunning()
 	}
     
+    private func updatePreviewLayer(layer: AVCaptureConnection, orientation: AVCaptureVideoOrientation) {
+        
+        layer.videoOrientation = orientation
+        
+        previewLayer.frame = self.view.bounds
+        
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        if let connection =  self.previewLayer.connection  {
+            
+            let currentDevice: UIDevice = UIDevice.current
+            
+            let orientation: UIDeviceOrientation = currentDevice.orientation
+            
+            let previewLayerConnection : AVCaptureConnection = connection
+            
+            if previewLayerConnection.isVideoOrientationSupported {
+                
+                switch (orientation) {
+                case .portrait: updatePreviewLayer(layer: previewLayerConnection, orientation: .portrait)
+                
+                    break
+                    
+                case .landscapeRight: updatePreviewLayer(layer: previewLayerConnection, orientation: .landscapeLeft)
+                
+                    break
+                    
+                case .landscapeLeft: updatePreviewLayer(layer: previewLayerConnection, orientation: .landscapeRight)
+                
+                    break
+                    
+                case .portraitUpsideDown: updatePreviewLayer(layer: previewLayerConnection, orientation: .portraitUpsideDown)
+                
+                    break
+                    
+                default: updatePreviewLayer(layer: previewLayerConnection, orientation: .portrait)
+                
+                    break
+                }
+            }
+        }
+    }
+
+    
     // THNETS neural network loading and initalization:
+    let nnEyeSize = 128
+    var categories:[String] = []
     var net: UnsafeMutablePointer<THNETWORK>?
     // load neural net from project:
     let docsPath = Bundle.main.resourcePath! + "/neural-nets/"
@@ -46,9 +92,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
 	lazy var previewLayer: AVCaptureVideoPreviewLayer = {
 		let preview =  AVCaptureVideoPreviewLayer(session: self.cameraSession)
-		preview?.bounds = CGRect(x: 0, y: 0, width: self.previewView.bounds.width, height: self.previewView.bounds.height)
-		preview?.position = CGPoint(x: self.previewView.bounds.midX, y: self.previewView.bounds.midY)
-		preview?.videoGravity = AVLayerVideoGravityResize
+		preview?.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
+		preview?.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
+		//preview?.videoGravity = AVLayerVideoGravityResize
 		return preview!
 	}()
 
@@ -93,8 +139,21 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         } catch {
             print(error)
         }
+    
+        // load categories file:
+        if true {
+            do {
+                let data = try String(contentsOfFile: "\(docsPath)/categories.txt", encoding: .utf8)
+                categories = data.components(separatedBy: .newlines)
+                categories.remove(at: 0)
+                categories.remove(at: 46)
+                //print(categories)
+            } catch {
+                print(error)
+            }
+        }
+
         
-        // THNETS:
         // Load Network
         net = THLoadNetwork(docsPath)
         //print(net)
@@ -124,44 +183,61 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         UIGraphicsEndImageContext()
         return newImage!
     }
+    
+    func convert<T>(count: Int, data: UnsafePointer<T>) -> [T] {
+        
+        let buffer = UnsafeBufferPointer(start: data, count: count);
+        return Array(buffer)
+    }
 
 	func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
-        
 		// Here you collect each frame and process it
         let methodStart = NSDate()
         
         // get pixel buffer:
         //http://stackoverflow.com/questions/8493583/ios-scale-and-crop-cmsamplebufferref-cvimagebufferref
-        let cropWidth = 256
-        let cropHeight = 256
+        let cropWidth = nnEyeSize
+        let cropHeight = nnEyeSize
         let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
         let cameraImage = CIImage(cvPixelBuffer: imageBuffer)
         let uiImage = UIImage(ciImage: cameraImage)
         print("Camera input size:", uiImage.size)
-
         
         // crop and scale buffer:
         let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
         print("croppedScaledImage size:", croppedScaledImage.size)
-        
+        //print(croppedScaledImage.cgImage?.colorSpace) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
+        let pixelData = croppedScaledImage.cgImage!.dataProvider!.data
+        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
+        var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
         
         // THNETS process image:
-        let nbatch:Int32 = 1
-        let widthi:Int32 = 256
-        let heighti:Int32 = 256
-        var image = [Float](repeating: 0.0, count: 3*256*256) // contains pixel data
+        let nbatch: Int32 = 1
+        //var data = [UInt8](repeating: 0, count: 3*256*256) // TEST pixel data
+        //var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data) // TEST pointer to pixel data
         var results: UnsafeMutablePointer<Float>?
         var outwidth: Int32 = 0
         var outheight: Int32 = 0
-        THProcessFloat(net, &image, nbatch, widthi, heighti, &results, &outwidth, &outheight)
-        print("")
-
+        THProcessImages(net, &pimage, nbatch, Int32(cropWidth), Int32(cropHeight), Int32(3*cropWidth), &results, &outwidth, &outheight, 0);
         
+        // convert results to array:
+        let resultsArray = convert(count:categories.count, data: results!)
+        print("Detection:", resultsArray)
+        let sorted = resultsArray.enumerated().sorted(by: {$0.element > $1.element})
+        // print them to console:
+        var stringResults:String = ""
+        for i in 1...5 {
+            print(sorted[i-1], categories[sorted[i-1].0])
+            stringResults.append("\(categories[sorted[i-1].0]) \(sorted[i-1].1) \n")
+        }
+        // in order to display it in the main view, we need to dispatch it to the main view controller:
+        DispatchQueue.main.async { self.textresults.text = stringResults }
+
         // print time:
         let methodFinish = NSDate()
         let executionTime = methodFinish.timeIntervalSince(methodStart as Date)
-        print("Execution time: \(executionTime)")
-        
+        print("Execution time: \(executionTime) \n")
+        DispatchQueue.main.async { self.textfps.text = "FPS: \(1/executionTime)" }
 	}
     
 
