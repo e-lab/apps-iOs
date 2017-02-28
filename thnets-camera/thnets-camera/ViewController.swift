@@ -13,6 +13,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
     @IBOutlet weak var textresults: UILabel!
     
+    @IBOutlet weak var textfps: UILabel!
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setupCameraSession()
@@ -23,6 +25,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
 		view.layer.addSublayer(previewLayer)
         view.addSubview(textresults)
+        view.addSubview(textfps)
 
 		cameraSession.startRunning()
 	}
@@ -75,6 +78,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
     
     // THNETS neural network loading and initalization:
+    let nnEyeSize = 128
     var categories:[String] = []
     var net: UnsafeMutablePointer<THNETWORK>?
     // load neural net from project:
@@ -192,8 +196,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         
         // get pixel buffer:
         //http://stackoverflow.com/questions/8493583/ios-scale-and-crop-cmsamplebufferref-cvimagebufferref
-        let cropWidth = 256
-        let cropHeight = 256
+        let cropWidth = nnEyeSize
+        let cropHeight = nnEyeSize
         let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
         let cameraImage = CIImage(cvPixelBuffer: imageBuffer)
         let uiImage = UIImage(ciImage: cameraImage)
@@ -202,6 +206,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // crop and scale buffer:
         let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
         print("croppedScaledImage size:", croppedScaledImage.size)
+        //print(croppedScaledImage.cgImage?.colorSpace) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
         let pixelData = croppedScaledImage.cgImage!.dataProvider!.data
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
         var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
@@ -216,7 +221,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         THProcessImages(net, &pimage, nbatch, Int32(cropWidth), Int32(cropHeight), Int32(3*cropWidth), &results, &outwidth, &outheight, 0);
         
         // convert results to array:
-        let resultsArray = convert(count:46, data: results!)
+        let resultsArray = convert(count:categories.count, data: results!)
         print("Detection:", resultsArray)
         let sorted = resultsArray.enumerated().sorted(by: {$0.element > $1.element})
         // print them to console:
@@ -232,6 +237,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         let methodFinish = NSDate()
         let executionTime = methodFinish.timeIntervalSince(methodStart as Date)
         print("Execution time: \(executionTime) \n")
+        DispatchQueue.main.async { self.textfps.text = "FPS: \(1/executionTime)" }
 	}
     
 
