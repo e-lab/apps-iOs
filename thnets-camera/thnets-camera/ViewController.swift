@@ -10,7 +10,16 @@ import AVFoundation
 import CoreImage
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
+    
+    @IBOutlet var previewView: UIView!
+    var stillImage : AVCapturePhotoOutput?
+    
+    @IBAction func camButton(_ sender: Any) {
 
+        print("button pressed")
+        
+    }
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setupCameraSession()
@@ -19,7 +28,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 
-		view.layer.addSublayer(previewLayer)
+		previewView.layer.addSublayer(previewLayer)
 
 		cameraSession.startRunning()
 	}
@@ -37,8 +46,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 
 	lazy var previewLayer: AVCaptureVideoPreviewLayer = {
 		let preview =  AVCaptureVideoPreviewLayer(session: self.cameraSession)
-		preview?.bounds = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.height)
-		preview?.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
+		preview?.bounds = CGRect(x: 0, y: 0, width: self.previewView.bounds.width, height: self.previewView.bounds.height)
+		preview?.position = CGPoint(x: self.previewView.bounds.midX, y: self.previewView.bounds.midY)
 		preview?.videoGravity = AVLayerVideoGravityResize
 		return preview!
 	}()
@@ -117,6 +126,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     }
 
 	func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
+        
 		// Here you collect each frame and process it
         let methodStart = NSDate()
         
@@ -128,6 +138,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         let cameraImage = CIImage(cvPixelBuffer: imageBuffer)
         let uiImage = UIImage(ciImage: cameraImage)
         print("Camera input size:", uiImage.size)
+
         
         // crop and scale buffer:
         let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
@@ -142,7 +153,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         var results: UnsafeMutablePointer<Float>?
         var outwidth: Int32 = 0
         var outheight: Int32 = 0
-        THProcessFloat(net, &image, nbatch, widthi, heighti, &results, &outwidth, &outheight);
+        THProcessFloat(net, &image, nbatch, widthi, heighti, &results, &outwidth, &outheight)
         print("")
 
         
@@ -150,6 +161,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         let methodFinish = NSDate()
         let executionTime = methodFinish.timeIntervalSince(methodStart as Date)
         print("Execution time: \(executionTime)")
+        
 	}
     
 
