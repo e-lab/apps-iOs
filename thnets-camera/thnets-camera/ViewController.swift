@@ -115,6 +115,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         UIGraphicsEndImageContext()
         return newImage!
     }
+    
+    func convert<T>(count: Int, data: UnsafePointer<T>) -> [T] {
+        
+        let buffer = UnsafeBufferPointer(start: data, count: count);
+        return Array(buffer)
+    }
 
 	func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
 		// Here you collect each frame and process it
@@ -132,24 +138,28 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // crop and scale buffer:
         let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
         print("croppedScaledImage size:", croppedScaledImage.size)
-        
+        let pixelData = croppedScaledImage.cgImage!.dataProvider!.data
+        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
+        var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
         
         // THNETS process image:
-        let nbatch:Int32 = 1
-        let widthi:Int32 = 256
-        let heighti:Int32 = 256
-        var image = [Float](repeating: 0.0, count: 3*256*256) // contains pixel data
+        let nbatch: Int32 = 1
+        //var data = [UInt8](repeating: 0, count: 3*256*256) // TEST pixel data
+        //var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data) // TEST pointer to pixel data
         var results: UnsafeMutablePointer<Float>?
         var outwidth: Int32 = 0
         var outheight: Int32 = 0
-        THProcessFloat(net, &image, nbatch, widthi, heighti, &results, &outwidth, &outheight);
-        print("")
+        THProcessImages(net, &pimage, nbatch, Int32(cropWidth), Int32(cropHeight), Int32(3*cropWidth), &results, &outwidth, &outheight, 0);
+        
+        // convert results to array:
+        let resultsArray = convert(count:46, data: results!)
+        print("Detection:", resultsArray)
 
         
         // print time:
         let methodFinish = NSDate()
         let executionTime = methodFinish.timeIntervalSince(methodStart as Date)
-        print("Execution time: \(executionTime)")
+        print("Execution time: \(executionTime) \n")
 	}
     
 
