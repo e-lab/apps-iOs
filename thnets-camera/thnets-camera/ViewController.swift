@@ -40,7 +40,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     override func viewWillLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        /*
+        
         if let connection =  self.previewLayer.connection  {
             
             let currentDevice: UIDevice = UIDevice.current
@@ -73,7 +73,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                     break
                 }
             }
-        }*/
+        }
     }
 
     
