@@ -208,8 +208,28 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         print("croppedScaledImage size:", croppedScaledImage.size)
         //print(croppedScaledImage.cgImage?.colorSpace) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
         let pixelData = croppedScaledImage.cgImage!.dataProvider!.data
-        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
-        var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
+        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
+        //var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
+        
+        // convert image data to array for test:
+        let imdatay = convert(count:16, data: data)
+        print("input image:", imdatay)
+        
+        /// convert BGRA to RGB:
+        var idx = 0
+        var dataRGB = [CUnsignedChar](repeating: 0, count: (nnEyeSize*nnEyeSize*3))
+        for i in stride(from:0, through: nnEyeSize*nnEyeSize*4-1, by: 4) { // every 4 values do this:
+            dataRGB[idx]   = data[i+2]
+            dataRGB[idx+1] = data[i+1]
+            dataRGB[idx+2] = data[i]
+            idx = idx+3
+        }
+        
+        var pimage : UnsafeMutablePointer? = UnsafeMutablePointer(mutating: dataRGB)
+        
+        // convert image data to array for test:
+        let imdatay2 = convert(count:16, data: pimage!)
+        print("converted image:", imdatay2)
         
         ///convert rgb format by removing alpha from data
         var idx = 0
@@ -230,7 +250,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         
         // THNETS process image:
         let nbatch: Int32 = 1
-        //var data = [UInt8](repeating: 0, count: 3*256*256) // TEST pixel data
+        //var data = [UInt8](repeating: 0, count: 3*nnEyeSize*nnEyeSize) // TEST pixel data
         //var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data) // TEST pointer to pixel data
         var results: UnsafeMutablePointer<Float>?
         var outwidth: Int32 = 0
@@ -239,7 +259,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         
         // convert results to array:
         let resultsArray = convert(count:categories.count, data: results!)
-        print("Detection:", resultsArray)
+        //print("Detections:", resultsArray)
         let sorted = resultsArray.enumerated().sorted(by: {$0.element > $1.element})
         // print them to console:
         var stringResults:String = ""
