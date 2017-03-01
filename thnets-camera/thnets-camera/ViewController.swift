@@ -162,7 +162,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         if net != nil { THUseSpatialConvolutionMM(net, 2) }
 	}
     
-    func resizedCroppedImage(image: UIImage, newSize:CGSize) -> UIImage { //http://stackoverflow.com/questions/603907/uiimage-resize-then-crop
+    func resizedCroppedImage(image: UIImage, newSize:CGSize) -> UIImage? { //http://stackoverflow.com/questions/603907/uiimage-resize-then-crop
         var ratio: CGFloat = 0
         var delta: CGFloat = 0
         var offset = CGPoint.zero
@@ -181,7 +181,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         image.draw(in: clipRect)
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return newImage!
+        return newImage
     }
     
     func convert<T>(count: Int, data: UnsafePointer<T>) -> [T] {
@@ -190,8 +190,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         return Array(buffer)
     }
 
-	func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
-		// Here you collect each frame and process it
+    func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
+        // Here you collect each frame and process it
         let methodStart = NSDate()
         
         // get pixel buffer:
@@ -201,27 +201,27 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
         let cameraImage = CIImage(cvPixelBuffer: imageBuffer)
         let uiImage = UIImage(ciImage: cameraImage)
-        print("Camera input size:", uiImage.size)
+        //print("Camera input size:", uiImage.size)
         
         // crop and scale buffer:
-//        let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
-//        print("croppedScaledImage size:", croppedScaledImage.size)
-//        //print(croppedScaledImage.cgImage?.colorSpace) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
-//        let pixelData = croppedScaledImage.cgImage!.dataProvider!.data
-//        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
-//        //var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
-//        
-//        // convert image data to array for test:
-//        let imdatay = convert(count:16, data: data)
-//        print("input image:", imdatay)
-//        
+        let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
+        print("croppedScaledImage size:", croppedScaledImage!.size)
+        print(croppedScaledImage?.cgImage!.colorSpace!) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
+        let pixelData = croppedScaledImage?.cgImage!.dataProvider!.data
         
-        // test with images:
+        
+        // test with images: THIS WORKS!
         let testImage = UIImage(named: "face") // or "hand" or "face"
-        print("testImage size:", testImage?.size)
-        let pixelData = testImage?.cgImage!.dataProvider!.data
+        print("testImage size:", testImage!.size)
+        print(testImage?.cgImage!.colorSpace) // gives: <CGColorSpace 0x170035420> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
+        //        let pixelData = testImage?.cgImage!.dataProvider!.data
+        
+        
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
-//        var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
+        
+        // convert image data to array for test:
+        let imdatay = convert(count:16, data: data)
+        print("input image:", imdatay)
         
         /// convert BGRA to RGB:
         var idx = 0
@@ -233,15 +233,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             idx = idx+3
         }
         
+        // get usable pointer to image:
         var pimage : UnsafeMutablePointer? = UnsafeMutablePointer(mutating: dataRGB)
-
-        
-
         
         // convert image data to array for test:
         let imdatay2 = convert(count:16, data: pimage!)
         print("converted image:", imdatay2)
-
         
         // THNETS process image:
         let nbatch: Int32 = 1
@@ -255,10 +252,10 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         
         // convert results to array:
         let resultsArray = convert(count:categories.count, data: results!)
-        print("Detections:", resultsArray)
-        for i in 0...45 {
-            print(i, categories[i], resultsArray[i])
-        }
+        //print("Detections:", resultsArray)
+        //for i in 0...45 {
+        //    print(i, categories[i], resultsArray[i])
+        //}
         let sorted = resultsArray.enumerated().sorted(by: {$0.element > $1.element})
         // print them to console:
         var stringResults:String = ""
@@ -268,19 +265,18 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
         // in order to display it in the main view, we need to dispatch it to the main view controller:
         DispatchQueue.main.async { self.textresults.text = stringResults }
-
+        
         // print time:
         let methodFinish = NSDate()
         let executionTime = methodFinish.timeIntervalSince(methodStart as Date)
-        print("Execution time: \(executionTime) \n")
+        print("Processing time: \(executionTime) \n")
         DispatchQueue.main.async { self.textfps.text = "FPS: \(1/executionTime)" }
-	}
+    }
     
-
-	func captureOutput(_ captureOutput: AVCaptureOutput!, didDrop sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
-		// Here you can count how many frames are dropped
-	}
     
+    func captureOutput(_ captureOutput: AVCaptureOutput!, didDrop sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
+        // Here you can count how many frames are dropped
+    }
     
 }
 
