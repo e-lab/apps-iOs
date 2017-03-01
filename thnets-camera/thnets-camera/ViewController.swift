@@ -11,8 +11,8 @@ import CoreImage
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
 
+    @IBOutlet var camView: UIView!
     @IBOutlet weak var textresults: UILabel!
-    
     @IBOutlet weak var textfps: UILabel!
     
 	override func viewDidLoad() {
@@ -23,9 +23,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 
-		view.layer.addSublayer(previewLayer)
-        view.addSubview(textresults)
-        view.addSubview(textfps)
+		camView.layer.addSublayer(previewLayer)
+        camView.addSubview(textresults)
+        camView.addSubview(textfps)
 
 		cameraSession.startRunning()
 	}
@@ -40,7 +40,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     override func viewWillLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
+        /*
         if let connection =  self.previewLayer.connection  {
             
             let currentDevice: UIDevice = UIDevice.current
@@ -73,7 +73,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
                     break
                 }
             }
-        }
+        }*/
     }
 
     
@@ -85,9 +85,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     let docsPath = Bundle.main.resourcePath! + "/neural-nets/"
 
 	lazy var cameraSession: AVCaptureSession = {
-		let s = AVCaptureSession()
-		s.sessionPreset = AVCaptureSessionPresetMedium //https://developer.apple.com/reference/avfoundation/avcapturesession/video_input_presets
-        return s
+		let captureSession = AVCaptureSession()
+		captureSession.sessionPreset = AVCaptureSessionPresetMedium //https://developer.apple.com/reference/avfoundation/avcapturesession/video_input_presets
+        return captureSession
 	}()
 
 	lazy var previewLayer: AVCaptureVideoPreviewLayer = {
