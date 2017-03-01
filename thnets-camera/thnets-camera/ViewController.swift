@@ -204,16 +204,24 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         print("Camera input size:", uiImage.size)
         
         // crop and scale buffer:
-        let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
-        print("croppedScaledImage size:", croppedScaledImage.size)
-        //print(croppedScaledImage.cgImage?.colorSpace) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
-        let pixelData = croppedScaledImage.cgImage!.dataProvider!.data
-        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
-        //var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
+//        let croppedScaledImage = resizedCroppedImage(image: uiImage, newSize: CGSize(width:cropWidth, height:cropHeight))
+//        print("croppedScaledImage size:", croppedScaledImage.size)
+//        //print(croppedScaledImage.cgImage?.colorSpace) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
+//        let pixelData = croppedScaledImage.cgImage!.dataProvider!.data
+//        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
+//        //var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
+//        
+//        // convert image data to array for test:
+//        let imdatay = convert(count:16, data: data)
+//        print("input image:", imdatay)
+//        
         
-        // convert image data to array for test:
-        let imdatay = convert(count:16, data: data)
-        print("input image:", imdatay)
+        // test with images:
+        let testImage = UIImage(named: "face") // or "hand" or "face"
+        print("testImage size:", testImage?.size)
+        let pixelData = testImage?.cgImage!.dataProvider!.data
+        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
+//        var pimage: UnsafeMutablePointer? = UnsafeMutablePointer(mutating: data)
         
         /// convert BGRA to RGB:
         var idx = 0
@@ -226,10 +234,14 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
         
         var pimage : UnsafeMutablePointer? = UnsafeMutablePointer(mutating: dataRGB)
+
+        
+
         
         // convert image data to array for test:
         let imdatay2 = convert(count:16, data: pimage!)
         print("converted image:", imdatay2)
+
         
         // THNETS process image:
         let nbatch: Int32 = 1
@@ -239,16 +251,20 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         var outwidth: Int32 = 0
         var outheight: Int32 = 0
         THProcessImages(net, &pimage, nbatch, Int32(cropWidth), Int32(cropHeight), Int32(3*cropWidth), &results, &outwidth, &outheight, Int32(0));
+        print("TH out sizes:", outwidth, outheight)
         
         // convert results to array:
         let resultsArray = convert(count:categories.count, data: results!)
-        //print("Detections:", resultsArray)
+        print("Detections:", resultsArray)
+        for i in 0...45 {
+            print(i, categories[i], resultsArray[i])
+        }
         let sorted = resultsArray.enumerated().sorted(by: {$0.element > $1.element})
         // print them to console:
         var stringResults:String = ""
-        for i in 1...5 {
-            print(sorted[i-1], categories[sorted[i-1].0])
-            stringResults.append("\(categories[sorted[i-1].0]) \(sorted[i-1].1) \n")
+        for i in 0...4 {
+            print(sorted[i], categories[sorted[i].0])
+            stringResults.append("\(categories[sorted[i].0]) \(sorted[i].1) \n")
         }
         // in order to display it in the main view, we need to dispatch it to the main view controller:
         DispatchQueue.main.async { self.textresults.text = stringResults }
@@ -262,9 +278,9 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
 
 	func captureOutput(_ captureOutput: AVCaptureOutput!, didDrop sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
-		// Here you can count how many frames are dopped
+		// Here you can count how many frames are dropped
 	}
-	
+    
     
 }
 
