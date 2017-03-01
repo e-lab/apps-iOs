@@ -231,23 +231,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         let imdatay2 = convert(count:16, data: pimage!)
         print("converted image:", imdatay2)
         
-        ///convert rgb format by removing alpha from data
-        var idx = 0
-        var cHMAC = [CUnsignedChar](repeating: 0, count: (128*128*3))
-        for x in 0...127 {
-            for y in 0...127{
-                let pixelInfo: Int = ((Int(128) * Int(y)) + Int(x)) * 4
-                
-                cHMAC[idx] = data[pixelInfo]
-                cHMAC[idx+1] = (data[pixelInfo+1])
-                cHMAC[idx+2] = (data[pixelInfo+2])
-                
-                idx += 3
-            }
-        }
-        
-        var pimage2 : UnsafeMutablePointer? = UnsafeMutablePointer(mutating: cHMAC)
-        
         // THNETS process image:
         let nbatch: Int32 = 1
         //var data = [UInt8](repeating: 0, count: 3*nnEyeSize*nnEyeSize) // TEST pixel data
@@ -255,7 +238,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         var results: UnsafeMutablePointer<Float>?
         var outwidth: Int32 = 0
         var outheight: Int32 = 0
-        THProcessImages(net, &pimage2, nbatch, Int32(cropWidth), Int32(cropHeight), Int32(3*cropWidth), &results, &outwidth, &outheight, 0);
+        THProcessImages(net, &pimage, nbatch, Int32(cropWidth), Int32(cropHeight), Int32(3*cropWidth), &results, &outwidth, &outheight, Int32(0));
         
         // convert results to array:
         let resultsArray = convert(count:categories.count, data: results!)
