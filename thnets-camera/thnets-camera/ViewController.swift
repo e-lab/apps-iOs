@@ -184,34 +184,27 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 //        return newImage
 //    }
     
+    //new resize and rescale func
+    func resizeImage(image: UIImage, newWidth: CGFloat) -> UIImage? {
+        
+        let scale = newWidth / image.size.width
+        //new Height may not be 128, rescale the height
+        let tempH = image.size.height * scale
+        let newHeight = (newWidth/tempH)*tempH
+        
+        UIGraphicsBeginImageContext(CGSize(width: newWidth, height: newHeight))
+        image.draw(in: CGRect(x: 0, y: 0, width: newWidth, height: newHeight))
+        
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage
+    }
+    
     func convert<T>(count: Int, data: UnsafePointer<T>) -> [T] {
         
         let buffer = UnsafeBufferPointer(start: data, count: count);
         return Array(buffer)
-    }
-    
-    //buffer -> UIImage from https://github.com/daisuke0131/RealtimeFaceDetection/blob/master/RealtimeFaceDetection/ViewController.swift
-    func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage {
-        let imageBuffer: CVImageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
-        
-        CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: 0))
-        let address = CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0)
-        let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer)
-        let width = CVPixelBufferGetWidth(imageBuffer)
-        let height = CVPixelBufferGetHeight(imageBuffer)
-        
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        
-        let bitsPerCompornent: UInt = 8
-        let bitmapInfo = CGBitmapInfo(rawValue: (CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue) as UInt32)
-        
-        let context = CGContext(data: address, width: width, height: height, bitsPerComponent: 8, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: bitmapInfo.rawValue)
-        let imageRef = context!.makeImage()
-        
-        CVPixelBufferUnlockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: 0))
-        let resultImage: UIImage = UIImage(cgImage: imageRef!)
-        
-        return resultImage
     }
 
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
@@ -221,36 +214,17 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             
         let cropWidth = nnEyeSize
         let cropHeight = nnEyeSize
+        let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
+        let cameraImage = CIImage(cvPixelBuffer: imageBuffer)
+        let uiImage = UIImage(ciImage: cameraImage)
+        //print("Camera input size:", uiImage.size)
         
-        // get pixel buffer:
-        
-        // VERSION 1: via direct CMSampleBuffer
-//        //http://stackoverflow.com/questions/8493583/ios-scale-and-crop-cmsamplebufferref-cvimagebufferref
-//        let camBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
-//        CVPixelBufferLockBaseAddress(camBuffer, CVPixelBufferLockFlags(rawValue: 0))
-//        let baseAddress = unsafeBitCast(CVPixelBufferGetBaseAddress(camBuffer), to: UnsafePointer<UInt8>.self)
-//        //let bytesPerRow = CVPixelBufferGetBytesPerRow(camBuffer)
-//        let bufferWidth = CVPixelBufferGetWidth(camBuffer)
-//        let bufferHeight = CVPixelBufferGetHeight(camBuffer)
-//        print("Camera input size:", bufferWidth, bufferHeight)
-//        //http://stackoverflow.com/questions/34569750/get-pixel-value-from-cvpixelbufferref-in-swift
-//        let data = UnsafePointer<UInt8>(baseAddress) // data is in BGRA format
-        
-        
-        // VERSION 2: via uiImage
-        let camImage = imageFromSampleBuffer(sampleBuffer: sampleBuffer)
-        print("camImage size:", camImage.size)
-        //print(camImage?.cgImage!.colorSpace) // gives: <CGColorSpace 0x170035420> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
-        let pixelData = camImage.cgImage!.dataProvider!.data
+        // crop and scale buffer:
+        let croppedScaledImage = resizeImage(image: uiImage, newWidth: CGFloat(nnEyeSize))
+        print("croppedScaledImage size:", croppedScaledImage!.size)
+        //print(croppedScaledImage?.cgImage!.colorSpace!) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
+        let pixelData = croppedScaledImage?.cgImage!.dataProvider!.data
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
-        
-        // VERSION 3: via loaded image
-        // test with images: THIS WORKS!
-//        let testImage = UIImage(named: "face") // or "hand" or "face"
-//        print("testImage size:", testImage!.size)
-//        //print(testImage?.cgImage!.colorSpace) // gives: <CGColorSpace 0x170035420> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
-//        let pixelData = testImage?.cgImage!.dataProvider!.data
-//        let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
         
         
         // input image pixel samples:
