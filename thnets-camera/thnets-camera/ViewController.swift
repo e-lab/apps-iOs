@@ -162,29 +162,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         if net != nil { THUseSpatialConvolutionMM(net, 2) }
 	}
     
-//    func resizedCroppedImage(image: UIImage, newSize:CGSize) -> UIImage? { //http://stackoverflow.com/questions/603907/uiimage-resize-then-crop
-//        var ratio: CGFloat = 0
-//        var delta: CGFloat = 0
-//        var offset = CGPoint.zero
-//        if image.size.width > image.size.height {
-//            ratio = newSize.width / image.size.width
-//            delta = (ratio * image.size.width) - (ratio * image.size.height)
-//            offset = CGPoint(x:delta/2, y:0)
-//        } else {
-//            ratio = newSize.width / image.size.height
-//            delta = (ratio * image.size.height) - (ratio * image.size.width)
-//            offset = CGPoint(x:0, y:delta/2)
-//        }
-//        let clipRect = CGRect(x:-offset.x, y:-offset.y, width:(ratio * image.size.width) + delta, height:(ratio * image.size.height) + delta)
-//        UIGraphicsBeginImageContextWithOptions(newSize, true, 0.0)
-//        UIRectClip(clipRect)
-//        image.draw(in: clipRect)
-//        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-//        UIGraphicsEndImageContext()
-//        return newImage
-//    }
-    
-    //new resize and rescale func
+    // resize and rescale func
     func resizeImage(image: UIImage, newWidth: CGFloat) -> UIImage? {
         
         let scale = newWidth / image.size.width
@@ -221,15 +199,15 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         
         // crop and scale buffer:
         let croppedScaledImage = resizeImage(image: uiImage, newWidth: CGFloat(nnEyeSize))
-        print("croppedScaledImage size:", croppedScaledImage!.size)
+        //print("croppedScaledImage size:", croppedScaledImage!.size)
         //print(croppedScaledImage?.cgImage!.colorSpace!) // gives: <CGColorSpace 0x174020d00> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
         let pixelData = croppedScaledImage?.cgImage!.dataProvider!.data
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData) // data is in BGRA format
         
         
         // input image pixel samples:
-        let imdatay = convert(count:16, data: data)
-        print("input image:", imdatay)
+        //let imdatay = convert(count:16, data: data)
+        //print("input image:", imdatay)
         
         /// convert BGRA to RGB:
         var idx = 0
@@ -241,15 +219,12 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             idx = idx+3
         }
         
-        // unlock address used for processing:
-//        CVPixelBufferUnlockBaseAddress(camBuffer,CVPixelBufferLockFlags(rawValue: 0))
-        
         // get usable pointer to image:
         var pimage : UnsafeMutablePointer? = UnsafeMutablePointer(mutating: dataRGB)
         
         // converted image pixel samples:
-        let imdatay2 = convert(count:16, data: pimage!)
-        print("converted image:", imdatay2)
+        //let imdatay2 = convert(count:16, data: pimage!)
+        //print("converted image:", imdatay2)
         
         // THNETS process image:
         let nbatch: Int32 = 1
@@ -259,7 +234,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         var outwidth: Int32 = 0
         var outheight: Int32 = 0
         THProcessImages(net, &pimage, nbatch, Int32(cropWidth), Int32(cropHeight), Int32(3*cropWidth), &results, &outwidth, &outheight, Int32(0));
-        print("TH out sizes:", outwidth, outheight)
+        //print("TH out sizes:", outwidth, outheight)
         
         // convert results to array:
         let resultsArray = convert(count:categories.count, data: results!)
@@ -271,7 +246,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // print them to console:
         var stringResults:String = ""
         for i in 0...4 {
-            print(sorted[i], categories[sorted[i].0])
+            //print(sorted[i], categories[sorted[i].0])
             stringResults.append("\(categories[sorted[i].0]) \(sorted[i].1) \n")
         }
         // in order to display it in the main view, we need to dispatch it to the main view controller:
@@ -280,7 +255,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // print time:
         let methodFinish = NSDate()
         let executionTime = methodFinish.timeIntervalSince(methodStart as Date)
-        print("Processing time: \(executionTime) \n")
+        //print("Processing time: \(executionTime) \n")
         DispatchQueue.main.async { self.textfps.text = "FPS: \(1/executionTime)" }
 
     }
