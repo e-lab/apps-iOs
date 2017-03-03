@@ -415,7 +415,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/thnets-image/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.elab.thnets-camera";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elab.thnets-image";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "thnets/thnets-camera-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -432,7 +432,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/thnets-image/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.elab.thnets-camera";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.elab.thnets-image";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "thnets/thnets-camera-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;

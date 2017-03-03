@@ -87,8 +87,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         // test with images: THIS WORKS!
         let testImage = UIImage(named: "face") // or "hand" or "face"
         imageview.image = testImage //display the test image on screen
-        print("testImage size:", testImage!.size)
-        print(testImage?.cgImage!.colorSpace) // gives: <CGColorSpace 0x170035420> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
+        print("testImage size:", testImage?.size)
+        print(testImage?.cgImage!.colorSpace!) // gives: <CGColorSpace 0x170035420> (kCGColorSpaceICCBased; kCGColorSpaceModelRGB; sRGB IEC61966-2.1)
         let pixelData = testImage?.cgImage!.dataProvider!.data
         
         
